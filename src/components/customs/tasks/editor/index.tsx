@@ -1,4 +1,4 @@
-import { useTaskEditor } from '../../../../hooks/task';
+import { useTaskEditor } from '../../../../hooks/taskEditor';
 
 import TaskForm from '../form';
 
@@ -7,15 +7,15 @@ interface Props {
 }
 
 const TaskEditor = (props: Props) => {
-    const { data } = useTaskEditor();
+    const taskEditor = useTaskEditor();
 
-    if (!data) return <></>;
+    if (!taskEditor.editor) return <></>;
 
     return <TaskForm
         className={props.className}
-        fields={data.initialFields}
-        onSave={data.onSave}
-        onCancel={data.onCancel}
+        fields={taskEditor.editor.initialFields}
+        onSave={taskEditor.editor.onSave}
+        onCancel={taskEditor.editor.onCancel}
     />
 }
 

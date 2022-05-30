@@ -1,108 +1,57 @@
-import {useCallback, useContext, useEffect, useState} from 'react';
+import {useState} from 'react';
+import {useMutation, useQuery, useQueryClient} from 'react-query';
 
-import TasksService, {Task, TaskSearchParams, TaskSearchResult} from '../services/tasks';
+import TasksService from '../services/tasks';
 
-import TaskEditorContext, { TaskEditorValue, TaskFields } from '../contexts/taskEditor';
+import { TaskEditorValue, TaskFields } from '../contexts/taskEditor';
 
-const useTaskEditor = () => {
-    const { data, setEditor } = useContext(TaskEditorContext);
+const useTasksPage = () => {
+    const [page, setPage] = useState<number>(0);
 
-    const close = () => setEditor(undefined);
-
-    const createTask = () => {
-        setEditor({
-            initialFields: {
-                title: '',
-                completed: false
-            },
-            onSave: async (fields) => {
-                await TasksService.Create({
-                    title: fields.title,
-                    completed: fields.completed
-                });
-                close();
-            },
-            onCancel: close
-        })
-    }
-
-    const updateTask = (task: Task) => {
-        setEditor({
-            initialFields: {
-                title: task.title,
-                completed: task.completed
-            },
-            onSave: async (fields) => {
-                await TasksService.Update({
-                    id: task.id,
-                    title: fields.title,
-                    completed: fields.completed
-                });
-            },
-            onCancel: close
-        })
-    }
-
-    return {
-        data,
-        createTask,
-        updateTask,
-        close
-    };
-}
-
-const defaultData: TaskSearchResult = {
-    items: [],
-    page: 0,
-    limit: 0,
-    total: 0,
-    pages: 0
-}
-
-const useTaskSearch = () => {
-    const [error, setError] = useState<string | undefined>(undefined);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [data, setData] = useState<TaskSearchResult>(defaultData);
-
-    const [filter, setFilter] = useState<TaskSearchParams>({});
-
-    const search = useCallback((filter: TaskSearchParams): void => {
-        setFilter(filter);
-        setError(undefined);
-        setIsLoading(true);
-
-        TasksService.Search(filter)
-            .then(setData)
-            .catch(err => setError(err.message))
-            .finally(() => setIsLoading(false));
-    }, []);
-
-    useEffect(() => {
-        const reload = () => search(filter);
-
-        const createSubscription = TasksService.events.create.subscribe(reload);
-        const updateSubscription = TasksService.events.update.subscribe(reload);
-        const remoceSubscription = TasksService.events.remove.subscribe(reload);
-
-        return () => {
-            createSubscription.unsubscribe();
-            updateSubscription.unsubscribe();
-            remoceSubscription.unsubscribe();
-        }
-    }, [filter, search])
-
-    return {
+    const {
         data,
         isLoading,
-        error,
-        search
-    }
+        error
+    } = useQuery(
+        ['tasks', page],
+        () => TasksService.Search({ page, limit: 15 }),
+        { keepPreviousData: true }
+    );
+
+    return { data, isLoading, error, page, setPage }
+}
+
+const useTaskMutationEffects = <P, R>(method: (params: P) => Promise<R>) => {
+    const queryClient = useQueryClient();
+
+    return useMutation<R, unknown, P, unknown>(method, {
+        onSuccess: () => {
+            queryClient.invalidateQueries(['tasks'])
+                .catch(console.error)
+        }
+    });
+}
+
+const useCreateTaskMutation = () => {
+    return useTaskMutationEffects(TasksService.Create);
+}
+
+const useUpdateTaskMutation = () => {
+    return useTaskMutationEffects(TasksService.Update);
+}
+
+const useDeleteTaskMutation = () => {
+    return useTaskMutationEffects(TasksService.Delete);
 }
 
 export {
-    useTaskEditor,
-    useTaskSearch
+    useTaskMutationEffects,
+    useCreateTaskMutation,
+    useUpdateTaskMutation,
+    useDeleteTaskMutation,
+    useTasksPage
 };
+
 export type {
     TaskEditorValue,
     TaskFields

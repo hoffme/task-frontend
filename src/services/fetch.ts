@@ -13,7 +13,6 @@ interface Response<R> {
 class Fetch {
 
     public static readonly host: string = 'http://localhost:4000';
-    public static token?: string = undefined;
 
     public static async fetch<B = void, R = void>(props: Props<B>): Promise<Response<R>> {
         const url = new URL(`${Fetch.host}/api${props.uri}`);
@@ -24,14 +23,12 @@ class Fetch {
             }
         }
 
-        const headers: { [key:string]: string } = { 'Content-Type': 'application/json' };
-        if (Fetch.token) headers.Authorization = Fetch.token;
+        const response = await fetch(url.href, {
+            headers: { 'Content-Type': 'application/json' },
+            method: props.method || 'GET',
+            body: props.body ? JSON.stringify(props.body) : undefined
+        });
 
-        const method = props.method || 'GET';
-
-        const body = props.body ? JSON.stringify(props.body) : undefined;
-
-        const response = await fetch(url.href, { headers, method, body });
         return await response.json();
     }
 

@@ -1,11 +1,11 @@
-import TasksService, {Task} from '../../../../services/tasks';
+import {Task} from '../../../../services/tasks';
 
 import useJoinClassName from '../../../../hooks/joinClassName';
-import { useTaskEditor } from '../../../../hooks/task';
+import { useTaskEditor } from '../../../../hooks/taskEditor';
 
 import Icon from '../../../commons/icon';
 import Button from '../../../commons/buttons/main';
-import AsyncButton from '../../../commons/buttons/async';
+import TaskDeleteButton from '../buttons/delete';
 
 import style from './style.module.scss';
 
@@ -15,11 +15,7 @@ interface Props {
 }
 
 const TaskRow = (props: Props) => {
-    const { updateTask } = useTaskEditor();
-
-    const handleEdit = () => updateTask(props.task);
-
-    const handleDelete = () => TasksService.Delete(props.task.id);
+    const taskEditor = useTaskEditor();
 
     const containerClassName = useJoinClassName(style.container, props.className);
 
@@ -33,12 +29,10 @@ const TaskRow = (props: Props) => {
             { props.task.title }
         </label>
         <div className={style.actions}>
-            <Button level={'high'} className={style.editButton} onClick={handleEdit}>
+            <Button level={'high'} onClick={() => taskEditor.update(props.task)}>
                 Editar
             </Button>
-            <AsyncButton level={'normal'} className={style.deleteButton} onClickAsync={handleDelete}>
-                Eliminar
-            </AsyncButton>
+            <TaskDeleteButton id={props.task.id} />
         </div>
     </div>
 }

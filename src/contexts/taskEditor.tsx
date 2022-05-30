@@ -1,5 +1,7 @@
 import {createContext, ReactNode, useState} from 'react';
 
+import TasksService, {Task} from '../services/tasks';
+
 interface TaskFields {
     completed: boolean
     title: string
@@ -7,18 +9,22 @@ interface TaskFields {
 
 interface TaskEditorValue {
     initialFields: TaskFields
-    onSave: (fields: TaskFields) => Promise<void> | void
-    onCancel: () => Promise<void> | void
+    onSave: (fields: TaskFields) => Promise<void>
+    onCancel: () => Promise<void>
 }
 
 interface TaskEditorContextValue {
-    data?: TaskEditorValue
-    setEditor: (value?: TaskEditorValue) => void
+    editor?: TaskEditorValue
+    create: () => void
+    update: (task: Task) => void
+    close: () => void
 }
 
 const TaskEditorContext = createContext<TaskEditorContextValue>({
-    data: undefined,
-    setEditor: () => { throw new Error('no implemented') }
+    editor: undefined,
+    create: () => { throw new Error('no implemented') },
+    update: () => { throw new Error('no implemented') },
+    close: () => { throw new Error('no implemented') },
 });
 
 interface TaskEditorProviderProps {
@@ -28,9 +34,48 @@ interface TaskEditorProviderProps {
 const TaskEditorProvider = (props: TaskEditorProviderProps) => {
     const [editor, setEditor] = useState<TaskEditorValue | undefined>(undefined);
 
+    const create = () => {
+        setEditor({
+            initialFields: {
+                title: '',
+                completed: false
+            },
+            onSave: async (fields) => {
+                await TasksService.Create({
+                    title: fields.title,
+                    completed: fields.completed
+                });
+                close();
+            },
+            onCancel: async () => close()
+        })
+    }
+
+    const update = (task: Task) => {
+        setEditor({
+            initialFields: {
+                title: task.title,
+                completed: task.completed
+            },
+            onSave: async (fields) => {
+                await TasksService.Update({
+                    id: task.id,
+                    title: fields.title,
+                    completed: fields.completed
+                });
+                close();
+            },
+            onCancel: async () => close()
+        })
+    }
+
+    const close = () => setEditor(undefined);
+
     return <TaskEditorContext.Provider value={{
-        data: editor,
-        setEditor
+        editor,
+        create,
+        update,
+        close
     }}>
         { props.children }
     </TaskEditorContext.Provider>

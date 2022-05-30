@@ -1,11 +1,13 @@
 import {useState} from 'react';
+import {useMutation} from 'react-query';
 
 import useJoinClassName from '../../../../hooks/joinClassName';
-import useError from '../../../../hooks/error';
+import {useTaskMutationEffects} from '../../../../hooks/task';
 
-import AsyncButton from '../../../commons/buttons/async';
 import Input from '../../../commons/input';
 import Icon from '../../../commons/icon';
+import Button from '../../../commons/buttons/main';
+import Loading from '../../../commons/loading';
 
 import style from './style.module.scss';
 
@@ -21,35 +23,26 @@ const defaultValue: TaskFormFields = {
 
 interface Props {
     fields: TaskFormFields
-    onSave: (fields: TaskFormFields) => Promise<void> | void
-    onCancel: () => Promise<void> | void
+    onSave: (fields: TaskFormFields) => Promise<void>
+    onCancel: () => Promise<void>
     className?: string
 }
 
 const TaskForm = (props: Props) => {
-    const [error, setError] = useError();
+    const save = useTaskMutationEffects(props.onSave);
+    const cancel = useMutation(props.onCancel);
 
     const [data, setData] = useState<TaskFormFields>(props.fields || defaultValue);
 
-    const handleSave = async () => {
-        setError(undefined);
-
-        try { await props.onSave(data) }
-        catch (err: unknown) {
-            setError(err instanceof Error ? err : new Error('Error Desconocido'));
-        }
-    }
-
-    const handleCancel = async () => {
-        setError(undefined);
-
-        try { await props.onCancel() }
-        catch (err: unknown) {
-            setError(err instanceof Error ? err : new Error('Error Desconocido'));
-        }
-    }
-
     const containerClassName = useJoinClassName(style.container, props.className);
+
+    const saveError = !save.error ? undefined :
+        (save.error instanceof Error) ? save.error.message : 'Error Desconocido';
+    
+    const cancelError = !cancel.error ? undefined :
+        (cancel.error instanceof Error) ? cancel.error.message : 'Error Desconocido';
+    
+    const error = saveError || cancelError;
 
     return <div className={containerClassName}>
         <div className={style.fields}>
@@ -68,14 +61,22 @@ const TaskForm = (props: Props) => {
             />
         </div>
         <div className={style.actions}>
-            <AsyncButton level={'high'} className={style.saveButton} onClickAsync={handleSave}>
-                Guardar
-            </AsyncButton>
-            <AsyncButton level={'normal'} className={style.cancelButton} onClickAsync={handleCancel}>
-                Cancelar
-            </AsyncButton>
+            <Button
+                level={'high'}
+                className={style.saveButton}
+                onClick={() => save.mutate(data)}
+            >
+                { save.isLoading ? <Loading light /> : 'Guardar' }
+            </Button>
+            <Button
+                level={'normal'}
+                className={style.cancelButton}
+                onClick={() => cancel.mutate()}
+            >
+                { cancel.isLoading ? <Loading light /> : 'Cancelar' }
+            </Button>
         </div>
-        { error && <div className={style.error}>{ error.message }</div> }
+        { error && <div className={style.error}>{error}</div> }
     </div>
 }
 

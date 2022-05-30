@@ -1,4 +1,4 @@
-import { useTaskEditor } from '../../../../hooks/task';
+import { useTaskEditor } from '../../../../hooks/taskEditor';
 
 import Button from '../../../commons/buttons/main';
 
@@ -7,9 +7,9 @@ interface Props {
 }
 
 const TaskCreateButton = (props: Props) => {
-    const { createTask } = useTaskEditor();
+    const taskEditor = useTaskEditor();
 
-    return <Button className={props.className} level={'high'} onClick={createTask}>
+    return <Button className={props.className} level={'high'} onClick={taskEditor.create}>
         Nueva Tarea
     </Button>
 }
