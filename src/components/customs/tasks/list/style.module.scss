@@ -1,0 +1,14 @@
+.container {
+  border-radius: 0.5rem;
+  background-color: var(--surface-background-color);
+  box-shadow: 0 0 0.5rem var(--surface-shadow-color);
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .items {
+    flex: 1;
+    overflow-y: auto;
+  }
+}

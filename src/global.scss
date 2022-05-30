@@ -1,0 +1,35 @@
+html, body, #root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, 'Roboto', 'Ubuntu', 'Droid Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    --primary-color: darkviolet;
+    --secondary-color: purple;
+
+    --background-text-primary-color: darkviolet;
+    --background-text-secondary-color: #313131;
+    --background-text-tertiary-color: #777;
+    --background-color: #eee;
+
+    --surface-highlight-text-primary-color: #eeeeee;
+    --surface-highlight-text-secondary-color: #313131;
+    --surface-highlight-text-tertiary-color: darkviolet;
+    --surface-highlight-background-color: purple;
+    --surface-highlight-shadow-color: #999;
+    --surface-highlight-border-color: #444;
+
+    --surface-text-primary-color: darkviolet;
+    --surface-text-secondary-color: #313131;
+    --surface-text-tertiary-color: #999;
+    --surface-background-color: #fff;
+    --surface-shadow-color: #999;
+    --surface-border-color: #aaa;
+}
+
+#root {
+    background-color: var(--background-color);
+}

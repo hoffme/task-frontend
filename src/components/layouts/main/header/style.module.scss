@@ -1,0 +1,13 @@
+.container {
+  background-color: var(--surface-highlight-background-color);
+  box-shadow: 0 0.1rem 0.3rem var(--surface-shadow-color);
+  padding: 1rem;
+
+  .title {
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    font-size: 1.25em;
+    color: var(--surface-highlight-text-primary-color);
+  }
+}

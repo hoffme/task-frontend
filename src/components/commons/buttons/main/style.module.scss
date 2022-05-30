@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+
+  &.high {
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+    background-color: var(--surface-highlight-background-color);
+    color: var(--surface-highlight-text-primary-color);
+    box-shadow: 0.1rem 0.1rem 0.3rem var(--surface-highlight-shadow-color);
+  }
+
+  &.normal {
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+    background-color: var(--surface-background-color);
+    color: var(--surface-text-secondary-color);
+    box-shadow: 0.1rem 0.1rem 0.3rem var(--surface-highlight-shadow-color);
+  }
+
+  &.low {
+    padding: 0.25rem;
+    background-color: transparent;
+    color: var(--surface-text-secondary-color);
+  }
+}
